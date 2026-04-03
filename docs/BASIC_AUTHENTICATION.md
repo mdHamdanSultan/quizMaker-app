@@ -1,91 +1,109 @@
 # Basic Authentication
 
-This document describes the first-version authentication model for QuizMaker: user accounts, sign-up and login, how sessions tie to API routes, and how everything persists in **Cloudflare D1**. It is written so you can rebuild the same behavior on a new device together with **`MCQ_CRUD.md`** and **`UI.md`**. **Do not** paste Cloudflare API tokens, account IDs, or production secrets into these docs—use placeholders and your own dashboard or Wrangler setup.
+This document describes the **authentication-only** model for QuizMaker: user accounts, sign-up and login, sessions, and how user data persists in **Cloudflare D1**. MCQ features are documented separately in **`MCQ_CRUD.md`**. **Do not** paste Cloudflare API tokens, account IDs, or production secrets into these docs—use placeholders and your own dashboard or Wrangler setup.
+
+## Document map
+
+| File | Focus |
+|------|--------|
+| `BASIC_AUTHENTICATION.md` (this file) | Users table, passwords, sessions, auth API routes, D1 local vs remote |
+| `MCQ_CRUD.md` | MCQs, questions, choices, attempts (application data) |
+| `UI.md` | Visual system (monochrome UI), routes, copy strings |
+
+---
 
 ## Goals
 
-- Users can **sign up** and **log in** with credentials stored in **D1** (Wrangler binding name is configurable; the app expects one D1 binding for the QuizMaker schema).
-- **Attempts** on MCQs are always associated with an authenticated **user ID** (see `MCQ_CRUD.md`).
+- Users can **sign up** and **log in** with credentials stored in **D1** (one D1 binding for the QuizMaker schema).
 - Passwords are **never stored in plain text**; only a strong one-way hash is persisted.
 - Session handling is explicit enough to swap for JWT/OAuth/cookies managed by a dedicated library without rewriting the whole domain model.
+
+---
 
 ## User Model
 
 | Field | Notes |
 |--------|--------|
-| **User ID** | Stable primary key (recommended: UUID/text id, or integer with `AUTOINCREMENT` in D1). Exposed in app code as `userId`. |
-| **First name** | Required for display and future profile features. |
-| **Last name** | Required for display and future profile features. |
+| **User ID** | Stable primary key (UUID/text id). Exposed in app code as `userId`. |
+| **First name** | Required for display. |
+| **Last name** | Required for display. |
 | **Username** | Unique, human-readable identifier. |
-| **Email** | Unique; may match username for users who prefer email-as-login. Validation: basic email format server-side. |
+| **Email** | Unique; validation: basic email format server-side. |
 | **Password** | Stored only as a **password hash** (see below). |
 
 ### Uniqueness and login identifier
 
 - Enforce **unique** constraints on `username` and `email` in the database.
-- **Login** may accept **email or username** in a single field (recommended UX), resolved server-side to one user row.
+- **Login** may accept **email or username** in a single field, resolved server-side to one user row.
+
+---
 
 ## Password Storage
 
-- On sign-up (and password change, when added later): hash with a modern, slow-by-design algorithm (**Argon2id** preferred if available in the Workers runtime; otherwise **bcrypt** with a sensible cost factor).
-- Store only: `password_hash`, optional `password_hash_algorithm` / version column if you want safe future algorithm rotation.
+- On sign-up: hash with **bcrypt** (or Argon2id when available) with a sensible cost factor.
+- Store: `password_hash`, optional `password_hash_algorithm` for future rotation.
 - Never log passwords or hashes in application logs.
+
+---
 
 ## Session Model (v1)
 
-A minimal, swappable approach:
-
-- After successful login, issue a **signed session token** (e.g. JWT or opaque id) stored in an **HTTP-only, Secure, SameSite=Lax** cookie.
-- Session payload should include at least `userId` and an expiry; refresh or sliding expiry can be added later.
-- **Sign-up** should log the user in the same way (same cookie shape) to reduce duplicate code paths.
+- After successful login (or sign-up), issue a **signed session token** stored in an **HTTP-only, Secure, SameSite=Lax** cookie.
+- Session payload includes at least `userId` and an expiry.
 
 ### Migration path to a framework
 
-- Keep **user table and password hashing** in dedicated modules (`lib/auth/password.ts`, `lib/auth/session.ts` or similar).
-- Replace cookie issuance/verification with NextAuth/Clerk/etc. by implementing the same small interface the app uses: `getCurrentUser()` / `requireUser()` for Server Components and Server Actions.
-- Avoid scattering `userId` discovery logic across the codebase—centralize it so the backing implementation can change in one place.
+- Keep **user table and password hashing** in dedicated modules (`lib/auth/password.ts`, `lib/auth/session-token.ts`, `lib/auth/session-cookie.ts`).
+- Replace cookie issuance/verification with NextAuth/Clerk/etc. by implementing the same interface: session read on the server for API routes and Server Components.
 
-## Routes and Flows (conceptual)
+---
+
+## Routes and Flows (authentication)
 
 | Flow | Behavior |
 |------|----------|
-| **Sign-up** | Validate input → check username/email uniqueness → hash password → insert user → create session → redirect to MCQ list (or home). |
+| **Sign-up** | Validate input → check username/email uniqueness → hash password → insert user → create session → redirect to app (e.g. `/mcqs`). |
 | **Login** | Resolve user by email/username → verify hash → create session → redirect. |
-| **Logout** | Clear session cookie; optionally revoke server-side session record if you add a sessions table later. |
-| **Protected routes** | MCQ list, create/edit, preview/attempt, and any API that records attempts should **require** an authenticated user. Public marketing pages may stay unauthenticated if desired. |
+| **Logout** | Clear session cookie. |
+| **Protected routes** | Any route that requires identity uses middleware + session verification; unauthenticated users are redirected to `/login`. |
 
-## Relationship to MCQs and Attempts
-
-- Every **attempt** row references `user_id` (see `MCQ_CRUD.md`).
-- Anonymous attempts are **out of scope** for v1; unauthenticated users should be redirected to login (or sign-up) before viewing protected MCQ flows.
+---
 
 ## Security Notes (v1)
 
 - Use HTTPS in production (Cloudflare Workers default).
-- Rate-limit login and sign-up endpoints (Cloudflare rate limiting or app-level counters) to reduce brute-force risk.
-- CSRF: for cookie-based sessions, prefer SameSite cookies and consistent origin checks; if you add cross-site APIs, revisit CSRF tokens.
-- Document environment secrets (e.g. session signing key) in `.dev.vars` / Wrangler secrets, never in source control.
+- **Rate limiting** (recommended): add Cloudflare rate limiting or app-level limits on login/sign-up to reduce brute-force risk.
+- **CSRF**: SameSite cookies and same-origin APIs; revisit if you add cross-site clients.
+- **Secrets**: `SESSION_SECRET` in `.dev.vars` / Wrangler secrets—never in source control.
+
+---
 
 ## Cloudflare D1 and local development
 
-- **Single database**: Create one D1 database in the Cloudflare dashboard (or via Wrangler). Point `wrangler` config at it with a **`database_id`** you obtain from your own account.
-- **Binding**: Expose it to the Worker/Next adapter as one binding (e.g. `quizmaker_app_database`) used by all auth and MCQ code.
-- **Migrations**: Keep SQL files in a `migrations/` folder and apply them with Wrangler:
-  - **Local** (recommended for `next dev`): apply migrations to the **local** D1 copy so API routes respond immediately. Example npm script name: `db:migrate:local` → `wrangler d1 migrations apply <YOUR_DATABASE_NAME> --local`.
-  - **Remote** (deployed environment): apply the same migrations to the **remote** D1 instance before or after deploy, e.g. `wrangler d1 migrations apply <YOUR_DATABASE_NAME> --remote`.
-- **Avoid hanging requests in dev**: Do **not** set D1 to **remote-only** mode in Wrangler while running the Next.js dev server unless you have fully configured remote access (otherwise the Wrangler platform proxy can block or hang, and the browser will sit on “Signing in…” forever). Prefer **local** D1 for day-to-day development.
+- **Single database**: One D1 database; `wrangler` config includes `database_id` from your account.
+- **Binding**: e.g. `quizmaker_app_database` for all app data (users + MCQs share one DB; schema is split by table).
+- **Migrations**: SQL under `migrations/`; apply with Wrangler:
+  - **Local** (recommended for `next dev`): `npm run db:migrate:local`
+  - **Remote** (deployed): `npm run db:migrate:remote` (run when you deploy; do not apply remote from untrusted environments without review).
+- **Avoid hanging requests in dev**: Prefer **local** D1 for day-to-day development (see `MCQ_CRUD.md` for the same note in full context).
+
+---
 
 ## Server runtime (OpenNext on Cloudflare)
 
-- API routes and server code obtain the D1 binding via the OpenNext Cloudflare helper using **async** mode, e.g. `getCloudflareContext({ async: true })`, then read your D1 binding from `env`. A small wrapper (e.g. `getQuizmakerD1()`) keeps routes consistent.
-- **Next.js config** should call `initOpenNextCloudflareForDev()` from `@opennextjs/cloudflare` so `next dev` can inject bindings (see OpenNext Cloudflare “bindings” documentation).
+- API routes use `getCloudflareContext({ async: true })` and a small wrapper `getQuizmakerD1()` for the D1 binding.
+- `next.config.ts` calls `initOpenNextCloudflareForDev()` so `next dev` can inject bindings.
+
+---
 
 ## Session signing
 
-- Use a **strong random** `SESSION_SECRET` in production (Wrangler secret or environment). A placeholder dev default may exist only for convenience—**rotate** for any shared or production deployment.
+- Use a **strong random** `SESSION_SECRET` in production (Wrangler secret). A dev-only fallback may exist locally—**rotate** for shared or production deployments.
 
-## Future Extensions (not required for v1)
+---
+
+## Future Extensions (authentication only)
 
 - Email verification, password reset, OAuth providers.
 - Dedicated `sessions` table for revocation and multi-device management.
-- Role-based access (e.g. teacher vs student) on top of the same `users` table.
+- Role-based access on top of the same `users` table.

@@ -7,6 +7,8 @@
 		"build": "next build",
 		"start": "next start",
 		"lint": "next lint",
+		"test": "vitest run",
+		"test:watch": "vitest",
 		"deploy": "opennextjs-cloudflare build && opennextjs-cloudflare deploy",
 		"upload": "opennextjs-cloudflare build && opennextjs-cloudflare upload",
 		"preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
@@ -36,14 +38,20 @@
 	"devDependencies": {
 		"@eslint/eslintrc": "^3",
 		"@tailwindcss/postcss": "^4",
+		"@testing-library/jest-dom": "^6.9.1",
+		"@testing-library/react": "^16.3.2",
+		"@testing-library/user-event": "^14.6.1",
 		"@types/bcryptjs": "^2.4.6",
 		"@types/node": "^20.19.25",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
+		"@vitejs/plugin-react": "^6.0.1",
 		"eslint": "^9",
 		"eslint-config-next": "15.4.6",
+		"jsdom": "^29.0.1",
 		"tailwindcss": "^4",
 		"typescript": "^5",
+		"vitest": "^4.1.2",
 		"wrangler": "^4.51.0"
 	}
 }

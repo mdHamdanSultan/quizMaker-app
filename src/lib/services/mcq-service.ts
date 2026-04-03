@@ -38,8 +38,13 @@ export type McqDetail = {
 	choices: ChoiceRow[];
 };
 
-export async function listMcqs(db: D1Database): Promise<McqListRow[]> {
-	return executeQuery<McqListRow>(db, "SELECT id, title, description, created_at, updated_at FROM mcqs ORDER BY updated_at DESC", []);
+/** MCQs created by this user only (“My MCQs”). */
+export async function listMcqsForUser(db: D1Database, userId: string): Promise<McqListRow[]> {
+	return executeQuery<McqListRow>(
+		db,
+		"SELECT id, title, description, created_at, updated_at FROM mcqs WHERE created_by_user_id = ? ORDER BY updated_at DESC",
+		[userId]
+	);
 }
 
 export async function getMcqForOwner(db: D1Database, mcqId: string, ownerUserId: string): Promise<McqDetail | null> {

@@ -1,7 +1,7 @@
 import { readSessionPayload } from "@/lib/auth/session-cookie";
 import { getQuizmakerD1 } from "@/lib/cloudflare";
 import { jsonError, jsonOk, zodToErrorMessage } from "@/lib/api/http";
-import { createMcq, listMcqs } from "@/lib/services/mcq-service";
+import { createMcq, listMcqsForUser } from "@/lib/services/mcq-service";
 import { mcqWriteSchema } from "@/lib/validation/mcq";
 import { ZodError } from "zod";
 
@@ -12,7 +12,7 @@ export async function GET() {
 	if (!session) return jsonError("Unauthorized", 401);
 
 	const db = await getQuizmakerD1();
-	const rows = await listMcqs(db);
+	const rows = await listMcqsForUser(db, session.userId);
 	return jsonOk({ mcqs: rows });
 }
 

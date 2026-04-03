@@ -59,10 +59,10 @@ export function SignupForm() {
 
 	return (
 		<div className="flex flex-1 items-center justify-center px-4 py-12">
-			<Card className="w-full max-w-md">
+			<Card className="w-full max-w-md border-neutral-300">
 				<CardHeader>
-					<CardTitle>Sign Up</CardTitle>
-					<CardDescription>Create your QuizMaker account.</CardDescription>
+					<CardTitle className="text-center">Sign up</CardTitle>
+					<CardDescription className="text-center">Create your QuizMaker account</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -71,14 +71,14 @@ export function SignupForm() {
 								<Label htmlFor="firstName">First name</Label>
 								<Input id="firstName" autoComplete="given-name" {...form.register("firstName")} />
 								{form.formState.errors.firstName ? (
-									<p className="text-xs text-red-400">{form.formState.errors.firstName.message}</p>
+									<p className="text-xs text-neutral-800">{form.formState.errors.firstName.message}</p>
 								) : null}
 							</div>
 							<div className="space-y-2">
 								<Label htmlFor="lastName">Last name</Label>
 								<Input id="lastName" autoComplete="family-name" {...form.register("lastName")} />
 								{form.formState.errors.lastName ? (
-									<p className="text-xs text-red-400">{form.formState.errors.lastName.message}</p>
+									<p className="text-xs text-neutral-800">{form.formState.errors.lastName.message}</p>
 								) : null}
 							</div>
 						</div>
@@ -86,31 +86,31 @@ export function SignupForm() {
 							<Label htmlFor="username">Username</Label>
 							<Input id="username" autoComplete="username" {...form.register("username")} />
 							{form.formState.errors.username ? (
-								<p className="text-sm text-red-400">{form.formState.errors.username.message}</p>
+								<p className="text-sm text-neutral-800">{form.formState.errors.username.message}</p>
 							) : null}
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="email">Email</Label>
 							<Input id="email" type="email" autoComplete="email" {...form.register("email")} />
 							{form.formState.errors.email ? (
-								<p className="text-sm text-red-400">{form.formState.errors.email.message}</p>
+								<p className="text-sm text-neutral-800">{form.formState.errors.email.message}</p>
 							) : null}
 						</div>
 						<div className="space-y-2">
 							<Label htmlFor="password">Password</Label>
 							<Input id="password" type="password" autoComplete="new-password" {...form.register("password")} />
 							{form.formState.errors.password ? (
-								<p className="text-sm text-red-400">{form.formState.errors.password.message}</p>
+								<p className="text-sm text-neutral-800">{form.formState.errors.password.message}</p>
 							) : null}
 						</div>
-						{error ? <p className="text-sm text-red-400">{error}</p> : null}
-						<Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
+						{error ? <p className="text-sm text-neutral-800">{error}</p> : null}
+						<Button type="submit" className="w-full font-brand-serif" size="lg" disabled={form.formState.isSubmitting}>
 							{form.formState.isSubmitting ? "Creating account..." : "Create account"}
 						</Button>
-						<p className="text-center text-sm text-slate-400">
+						<p className="text-center font-brand-serif text-sm text-neutral-600">
 							Already have an account?{" "}
-							<Link href="/login" className="text-blue-400 hover:underline">
-								Login
+							<Link href="/login" className="text-black underline underline-offset-4 hover:no-underline">
+								Log in
 							</Link>
 						</p>
 					</form>

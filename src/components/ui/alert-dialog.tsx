@@ -12,7 +12,7 @@ const AlertDialogOverlay = React.forwardRef<
 	React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
 	<AlertDialogPrimitive.Overlay
-		className={cn("fixed inset-0 z-50 bg-black/70 backdrop-blur-sm data-[state=open]:animate-in", className)}
+		className={cn("fixed inset-0 z-50 bg-black/40 data-[state=open]:animate-in", className)}
 		{...props}
 		ref={ref}
 	/>
@@ -28,7 +28,7 @@ const AlertDialogContent = React.forwardRef<
 		<AlertDialogPrimitive.Content
 			ref={ref}
 			className={cn(
-				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-slate-600/50 bg-slate-900/95 p-6 shadow-xl duration-200 sm:rounded-2xl",
+				"fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-neutral-300 bg-white p-6 shadow-lg duration-200 sm:rounded-lg",
 				className
 			)}
 			{...props}
@@ -51,7 +51,7 @@ const AlertDialogTitle = React.forwardRef<
 	React.ElementRef<typeof AlertDialogPrimitive.Title>,
 	React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
-	<AlertDialogPrimitive.Title ref={ref} className={cn("text-lg font-semibold text-slate-50", className)} {...props} />
+	<AlertDialogPrimitive.Title ref={ref} className={cn("font-brand-serif text-lg font-semibold text-black", className)} {...props} />
 ));
 AlertDialogTitle.displayName = AlertDialogPrimitive.Title.displayName;
 
@@ -59,7 +59,7 @@ const AlertDialogDescription = React.forwardRef<
 	React.ElementRef<typeof AlertDialogPrimitive.Description>,
 	React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
-	<AlertDialogPrimitive.Description ref={ref} className={cn("text-sm text-slate-400", className)} {...props} />
+	<AlertDialogPrimitive.Description ref={ref} className={cn("text-sm text-neutral-600", className)} {...props} />
 ));
 AlertDialogDescription.displayName = AlertDialogPrimitive.Description.displayName;
 

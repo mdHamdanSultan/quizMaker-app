@@ -55,10 +55,10 @@ export function LoginForm() {
 
 	return (
 		<div className="flex flex-1 items-center justify-center px-4 py-12">
-			<Card className="w-full max-w-md">
+			<Card className="w-full max-w-md border-neutral-300">
 				<CardHeader>
-					<CardTitle>Login</CardTitle>
-					<CardDescription>Sign in with your username or email.</CardDescription>
+					<CardTitle className="text-center">Welcome back</CardTitle>
+					<CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
 				</CardHeader>
 				<CardContent>
 					<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -67,11 +67,12 @@ export function LoginForm() {
 							<Input
 								id="identifier"
 								autoComplete="username"
+								placeholder="john.doe@example.com"
 								{...form.register("identifier")}
 								aria-invalid={!!form.formState.errors.identifier}
 							/>
 							{form.formState.errors.identifier ? (
-								<p className="text-sm text-red-400">{form.formState.errors.identifier.message}</p>
+								<p className="text-sm text-neutral-800">{form.formState.errors.identifier.message}</p>
 							) : null}
 						</div>
 						<div className="space-y-2">
@@ -83,17 +84,17 @@ export function LoginForm() {
 								{...form.register("password")}
 							/>
 							{form.formState.errors.password ? (
-								<p className="text-sm text-red-400">{form.formState.errors.password.message}</p>
+								<p className="text-sm text-neutral-800">{form.formState.errors.password.message}</p>
 							) : null}
 						</div>
-						{error ? <p className="text-sm text-red-400">{error}</p> : null}
-						<Button type="submit" className="w-full" size="lg" disabled={form.formState.isSubmitting}>
-							{form.formState.isSubmitting ? "Signing in..." : "Sign in"}
+						{error ? <p className="text-sm text-neutral-800">{error}</p> : null}
+						<Button type="submit" className="w-full font-brand-serif" size="lg" disabled={form.formState.isSubmitting}>
+							{form.formState.isSubmitting ? "Signing in..." : "Log in"}
 						</Button>
-						<p className="text-center text-sm text-slate-400">
-							No account?{" "}
-							<Link href="/signup" className="text-blue-400 hover:underline">
-								Create one
+						<p className="text-center font-brand-serif text-sm text-neutral-600">
+							Don&apos;t have an account?{" "}
+							<Link href="/signup" className="text-black underline underline-offset-4 hover:no-underline">
+								Sign up
 							</Link>
 						</p>
 					</form>

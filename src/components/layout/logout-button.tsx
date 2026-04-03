@@ -13,7 +13,7 @@ export function LogoutButton() {
 	}
 
 	return (
-		<Button type="button" variant="ghost" size="sm" className="text-slate-300" onClick={() => void logout()}>
+		<Button type="button" variant="outline" size="sm" className="border-black text-black" onClick={() => void logout()}>
 			Log out
 		</Button>
 	);

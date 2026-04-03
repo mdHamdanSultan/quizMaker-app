@@ -81,7 +81,7 @@ export function McqPreview({ mcqId }: { mcqId: string }) {
 
 	if (loadError) {
 		return (
-			<Card>
+			<Card className="border-neutral-300">
 				<CardHeader>
 					<CardTitle>Error</CardTitle>
 					<CardDescription>{loadError}</CardDescription>
@@ -97,69 +97,81 @@ export function McqPreview({ mcqId }: { mcqId: string }) {
 
 	if (!data) {
 		return (
-			<div className="rounded-xl border border-slate-700/50 bg-slate-900/40 p-8 text-center text-slate-400">
-				Loading quiz…
-			</div>
+			<div className="rounded-lg border border-neutral-300 bg-white p-8 text-center text-neutral-600">Loading quiz…</div>
 		);
 	}
 
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle className="text-xl">{data.mcq.title}</CardTitle>
-				{data.mcq.description ? <CardDescription>{data.mcq.description}</CardDescription> : null}
-			</CardHeader>
-			<CardContent className="space-y-6">
-				<div>
-					<p className="text-base leading-relaxed text-slate-100">{data.question.prompt}</p>
-				</div>
-				<div className="space-y-3">
-					<p className="text-sm font-medium text-slate-400">Select an answer</p>
-					<ul className="space-y-2">
-						{[...data.choices]
-							.sort((a, b) => a.sortOrder - b.sortOrder)
-							.map((c) => (
-								<li key={c.id}>
-									<label className="flex cursor-pointer items-start gap-3 rounded-xl border border-slate-700/50 bg-slate-950/40 p-3 transition-colors hover:border-slate-600/60 has-[:checked]:border-blue-500/50 has-[:checked]:bg-blue-950/20">
-										<input
-											type="radio"
-											name="choice"
-											className="mt-1 accent-blue-500"
-											checked={selectedId === c.id}
-											onChange={() => {
-												setSelectedId(c.id);
-												setFeedback(null);
-											}}
-										/>
-										<span className="text-slate-100">{c.label}</span>
-									</label>
-								</li>
-							))}
-					</ul>
-				</div>
+		<>
+			<Link href="/mcqs" className="mb-4 inline-block text-sm text-neutral-600 hover:text-black">
+				← Back to MCQs
+			</Link>
+			<Card className="border-neutral-300">
+				<CardHeader>
+					<div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+						<div>
+							<CardTitle className="text-xl">{data.mcq.title}</CardTitle>
+							{data.mcq.description ? <CardDescription className="mt-2">{data.mcq.description}</CardDescription> : null}
+						</div>
+						<span className="inline-flex w-fit rounded-full border border-neutral-300 px-3 py-1 text-xs text-neutral-600">
+							Preview
+						</span>
+					</div>
+				</CardHeader>
+				<CardContent className="space-y-6">
+					<div>
+						<p className="text-base leading-relaxed text-black">{data.question.prompt}</p>
+					</div>
+					<div className="space-y-3">
+						<p className="text-sm font-medium text-neutral-600">Select an answer</p>
+						<ul className="space-y-2">
+							{[...data.choices]
+								.sort((a, b) => a.sortOrder - b.sortOrder)
+								.map((c) => {
+									const selected = selectedId === c.id;
+									return (
+										<li key={c.id}>
+											<button
+												type="button"
+												onClick={() => {
+													setSelectedId(c.id);
+													setFeedback(null);
+												}}
+												className={`w-full rounded-md border border-neutral-300 px-4 py-3 text-left text-black transition-colors ${
+													selected ? "bg-neutral-100" : "bg-white hover:bg-neutral-50"
+												}`}
+											>
+												{c.label}
+											</button>
+										</li>
+									);
+								})}
+						</ul>
+					</div>
 
-				{feedback !== null ? (
-					<p
-						className={
-							feedback ? "text-sm font-medium text-emerald-400" : "text-sm font-medium text-red-400"
-						}
-						role="status"
-					>
-						{feedback ? "Correct." : "Incorrect."}
-					</p>
-				) : null}
+					{feedback !== null ? (
+						<p className="text-sm font-medium text-black" role="status">
+							{feedback ? "Correct." : "Incorrect."}
+						</p>
+					) : null}
 
-				{submitError ? <p className="text-sm text-red-400">{submitError}</p> : null}
+					{submitError ? <p className="text-sm text-neutral-800">{submitError}</p> : null}
 
-				<div className="flex flex-wrap gap-3">
-					<Button type="button" onClick={() => void submit()} disabled={pending}>
-						{pending ? "Submitting…" : "Submit answer"}
-					</Button>
-					<Button type="button" variant="outline" asChild>
-						<Link href="/mcqs">Back to list</Link>
-					</Button>
-				</div>
-			</CardContent>
-		</Card>
+					<div className="flex flex-col gap-3 sm:flex-row">
+						<Button
+							type="button"
+							className="w-full bg-neutral-500 font-medium text-white hover:bg-neutral-600 sm:max-w-xs"
+							onClick={() => void submit()}
+							disabled={pending}
+						>
+							{pending ? "Submitting…" : "Submit answer"}
+						</Button>
+						<Button type="button" variant="outline" asChild>
+							<Link href="/mcqs">Back to list</Link>
+						</Button>
+					</div>
+				</CardContent>
+			</Card>
+		</>
 	);
 }

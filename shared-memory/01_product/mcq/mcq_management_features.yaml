@@ -4,14 +4,14 @@ create:
   - name: "MCQ creation form"
     type: "ui feature"
     fields: [title, description, question, choices, correctAnswer]
-    validation: [required_title, required_question, min2_choices, max6_choices, exactly1_correct]
+    validation: [required_title, required_question, min2_choices, max4_choices, exactly1_correct]
     status: "completed"
 
   - name: "dynamic choice management"
     type: "ui feature"
     fields: [choiceText, isCorrect, orderIndex]
     validation: [required_choiceText, unique_correctAnswer]
-    behavior: "add/remove/reorder choices dynamically, 2-6 allowed"
+    behavior: "add/remove choices dynamically, 2-4 allowed; radio marks correct answer"
     status: "completed"
 
   - name: "create MCQ"
@@ -25,15 +25,20 @@ create:
 listing:
   - name: "MCQ listing page"
     type: "ui feature"
-    fields: [search, pagination]
-    behavior: "table with title, description, created date, actions dropdown"
+    fields: [searchByDescription]
+    behavior: "cards with title, description, created date; search filters by description client-side; view/edit/delete actions"
     status: "completed"
 
-  - name: "list MCQs with search and pagination"
+  - name: "search MCQs by description"
+    type: "ui feature"
+    behavior: "filterMcqsByDescription on mcqs.description substring, case-insensitive"
+    status: "completed"
+
+  - name: "list MCQs"
     type: "api feature"
     endpoint: "GET /api/mcqs"
-    input: { search: "string", page: "number", limit: "number" }
-    output: { mcqs: "array", total: "number", page: "number" }
+    input: {}
+    output: { mcqs: "array" }
     errors: [401_unauthorized, 500_serverError]
     status: "completed"
 
@@ -41,7 +46,7 @@ edit:
   - name: "MCQ edit form"
     type: "ui feature"
     fields: [title, description, question, choices, correctAnswer]
-    validation: [required_title, required_question, min2_choices, max6_choices, exactly1_correct]
+    validation: [required_title, required_question, min2_choices, max4_choices, exactly1_correct]
     behavior: "pre-populated with existing MCQ data"
     status: "completed"
 
@@ -55,7 +60,7 @@ edit:
 
   - name: "update MCQ"
     type: "api feature"
-    endpoint: "PUT /api/mcqs/:id"
+    endpoint: "PATCH /api/mcqs/:id"
     input: { title: "string", description: "string", question: "string", choices: "array" }
     output: { mcq: "updated object" }
     errors: [400_validationError, 401_unauthorized, 403_forbidden, 404_notFound, 500_serverError]

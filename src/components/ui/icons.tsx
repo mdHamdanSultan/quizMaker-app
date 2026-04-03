@@ -34,3 +34,31 @@ export function IconTrash({ className }: { className?: string }) {
 		</svg>
 	);
 }
+
+export function IconBook({ className }: { className?: string }) {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cn("size-5", className)} aria-hidden>
+			<path d="M4 19.5A2.5 2.5 0 016.5 17H20" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" strokeLinecap="round" strokeLinejoin="round" />
+			<path d="M8 7h8M8 11h6" strokeLinecap="round" />
+		</svg>
+	);
+}
+
+export function IconSearch({ className }: { className?: string }) {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cn("size-5 shrink-0 text-neutral-500", className)} aria-hidden>
+			<circle cx="11" cy="11" r="7" />
+			<path d="M20 20l-3-3" strokeLinecap="round" />
+		</svg>
+	);
+}
+
+export function IconEye({ className }: { className?: string }) {
+	return (
+		<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={cn("size-5", className)} aria-hidden>
+			<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z" strokeLinecap="round" strokeLinejoin="round" />
+			<circle cx="12" cy="12" r="3" />
+		</svg>
+	);
+}

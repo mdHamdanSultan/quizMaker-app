@@ -147,81 +147,108 @@ export function McqForm({ mode, mcqId, initial }: McqFormProps) {
 		}
 	}
 
-	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>{mode === "create" ? "Create MCQ" : "Edit MCQ"}</CardTitle>
-				<CardDescription>Title, description, one question, and 2–4 answer choices.</CardDescription>
-			</CardHeader>
-			<CardContent>
-				<form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
-					<div className="space-y-2">
-						<Label htmlFor="title">Title</Label>
-						<Input id="title" value={title} onChange={(e) => setTitle(e.target.value)} required />
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="description">Description</Label>
-						<Textarea id="description" value={description} onChange={(e) => setDescription(e.target.value)} rows={3} />
-					</div>
-					<div className="space-y-2">
-						<Label htmlFor="prompt">Question</Label>
-						<Textarea id="prompt" value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={4} required />
-					</div>
+	const formTitle = mode === "create" ? "Create New MCQ" : "Edit MCQ";
 
-					<div className="space-y-3">
-						<div className="flex items-center justify-between">
-							<Label>Choices (2–4)</Label>
-							{choices.length < 4 ? (
-								<Button type="button" variant="outline" size="sm" onClick={addChoice}>
-									Add choice
-								</Button>
-							) : null}
+	return (
+		<>
+			<Link href="/mcqs" className="mb-4 inline-block text-sm text-neutral-600 hover:text-black">
+				← Back to MCQs
+			</Link>
+			<Card className="border-neutral-300">
+				<CardHeader>
+					<CardTitle>{formTitle}</CardTitle>
+					<CardDescription>Title, description, one question, and 2–4 choices. Mark exactly one choice as the correct answer.</CardDescription>
+				</CardHeader>
+				<CardContent>
+					<form onSubmit={(e) => void onSubmit(e)} className="space-y-6">
+						<div className="space-y-2">
+							<Label htmlFor="title">Title</Label>
+							<Input
+								id="title"
+								value={title}
+								onChange={(e) => setTitle(e.target.value)}
+								placeholder="e.g. Photosynthesis Basics"
+								required
+							/>
 						</div>
-						{choices.map((c, index) => (
-							<div key={index} className="flex flex-col gap-2 rounded-xl border border-slate-700/40 p-3 sm:flex-row sm:items-center">
-								<div className="flex flex-1 items-center gap-2">
-									<Input
-										placeholder={`Choice ${index + 1}`}
-										value={c.label}
-										onChange={(e) => {
-											const v = e.target.value;
-											setChoices((prev) => prev.map((x, i) => (i === index ? { ...x, label: v } : x)));
-										}}
-									/>
-								</div>
-								<div className="flex items-center gap-3">
-									<label className="flex cursor-pointer items-center gap-2 text-sm text-slate-400">
+						<div className="space-y-2">
+							<Label htmlFor="description">Description (optional)</Label>
+							<Textarea
+								id="description"
+								value={description}
+								onChange={(e) => setDescription(e.target.value)}
+								rows={3}
+								placeholder="Brief description of this question…"
+							/>
+						</div>
+						<div className="space-y-2">
+							<Label htmlFor="prompt">Question</Label>
+							<Textarea
+								id="prompt"
+								value={prompt}
+								onChange={(e) => setPrompt(e.target.value)}
+								rows={4}
+								placeholder="Enter your question here…"
+								required
+							/>
+						</div>
+
+						<div className="space-y-3">
+							<div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+								<Label>Answer choices (2–4, click circle to mark correct)</Label>
+								{choices.length < 4 ? (
+									<Button type="button" variant="outline" size="sm" onClick={addChoice}>
+										+ Add choice
+									</Button>
+								) : null}
+							</div>
+							{choices.map((c, index) => (
+								<div
+									key={index}
+									className="flex flex-col gap-2 rounded-md border border-neutral-300 p-3 sm:flex-row sm:items-center"
+								>
+									<div className="flex flex-1 items-center gap-2">
 										<input
 											type="radio"
 											name="correct"
 											checked={c.isCorrect}
 											onChange={() => setCorrect(index)}
-											className="accent-blue-500"
+											className="size-4 accent-black"
+											aria-label={`Mark choice ${index + 1} as correct`}
 										/>
-										Correct
-									</label>
-									{choices.length > 2 ? (
-										<Button type="button" variant="ghost" size="sm" onClick={() => removeChoice(index)}>
-											Remove
-										</Button>
-									) : null}
+										<Input
+											placeholder={`Choice ${index + 1}`}
+											value={c.label}
+											onChange={(e) => {
+												const v = e.target.value;
+												setChoices((prev) => prev.map((x, i) => (i === index ? { ...x, label: v } : x)));
+											}}
+										/>
+									</div>
+									<div className="flex items-center gap-3 pl-7 sm:pl-0">
+										{choices.length > 2 ? (
+											<Button type="button" variant="ghost" size="sm" onClick={() => removeChoice(index)}>
+												Remove
+											</Button>
+										) : null}
+									</div>
 								</div>
-							</div>
-						))}
-					</div>
+							))}
+						</div>
 
-					{error ? <p className="text-sm text-red-400">{error}</p> : null}
+						{error ? <p className="text-sm text-neutral-800">{error}</p> : null}
 
-					<div className="flex flex-wrap gap-3">
-						<Button type="submit" disabled={pending}>
-							{pending ? "Saving…" : mode === "create" ? "Create" : "Save changes"}
-						</Button>
-						<Button type="button" variant="outline" asChild>
-							<Link href="/mcqs">Cancel</Link>
-						</Button>
-					</div>
-				</form>
-			</CardContent>
-		</Card>
+						<div className="flex flex-wrap gap-3">
+							<Button type="submit" className="font-brand-serif" disabled={pending}>
+								{pending ? "Saving…" : mode === "create" ? "Create MCQ" : "Save changes"}
+							</Button>
+							<Button type="button" variant="outline" asChild>
+								<Link href="/mcqs">Cancel</Link>
+							</Button>
+						</div>
+					</form>
+				</CardContent>
+			</Card>
+		</>
 	);
 }
