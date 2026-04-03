@@ -57,6 +57,6 @@ Build with OpenNext; apply **remote** D1 migrations; set `SESSION_SECRET`; `npm 
 - [x] Attempts persist with server-side correctness.
 - [x] UI is black/white/grey only (sprint scope).
 
----
+-----
 
 **Last updated**: April 2026
